@@ -94,6 +94,7 @@ fi
 
 
 #create Hadoop-record-folders
+rm -r -f /opt/hadoop/tmp
 runRemoteCmd.sh "mkdir -p /opt/hadoop/tmp" all
 runRemoteCmd.sh "mkdir -p /opt/hadoop/tmp/name" all
 runRemoteCmd.sh "mkdir -p /opt/hadoop/tmp/data" all
@@ -123,10 +124,10 @@ echo `date '+%Y-%m-%d %H:%M:%S'` "$jdk has been installed"
 #zookeeper
 tar zxvf $zookeeper.tar.gz
 rm -r -f /opt/$zookeeper
+rm -r -f /opt/zookeeper
 mv $zookeeper /opt
-exit
 if [ -d "/opt/$zookeeper" ]; then
-  ln -s /opt/$zookeeper /opt/zookeeper 2&>1
+  ln -s /opt/$zookeeper /opt/zookeeper
   cp /opt/zookeeper/conf/zoo_sample.cfg /opt/zookeeper/conf/zoo.cfg
   sed -i '/dataDir/s/tmp/opt/' /opt/zookeeper/conf/zoo.cfg
   echo 'server.1=master:2888:3888' >> /opt/zookeeper/conf/zoo.cfg
@@ -134,7 +135,7 @@ if [ -d "/opt/$zookeeper" ]; then
   echo 'server.3=slaver2:2888:3888' >> /opt/zookeeper/conf/zoo.cfg
   echo '1' > /opt/zookeeper/myid
   runRemoteCmd.sh "rm -r -f /opt/zookeeper 2&>1" slave
-  deploy.sh /opt/zookeeper /opt/zookeeper slave
+  deploy.sh /opt/$zookeeper /opt/zookeeper slave
   runRemoteCmd.sh "echo '2' > /opt/zookeeper/myid" slaver1.mycluster $base/hadoop-3.0.3-ha/tools/host.conf
   runRemoteCmd.sh "echo '3' > /opt/zookeeper/myid" slaver2.mycluster $base/hadoop-3.0.3-ha/tools/host.conf
 else
@@ -149,39 +150,20 @@ rm -r -f /opt/hadoop
 mv $hadoop /opt
 if [ -d "/opt/$hadoop" ]; then
   ln -s /opt/$hadoop /opt/hadoop
-  echo 'export HADOOP_HOME=/opt/hadoop' >> /etc/profile
-  echo 'export HADOOP_MAPRED_HOME=$HADOOP_HOME' >> /etc/profile
-  echo 'export HADOOP_COMMON_HOME=$HADOOP_HOME' >> /etc/profile
-  echo 'export HADOOP_HDFS_HOME=$HADOOP_HOME' >> /etc/profile
-  echo 'export YARN_HOME=$HADOOP_HOME' >> /etc/profile
-  echo 'export HADOOP_CONF_DIR=$HADOOP_HOME/etc/hadoop' >> /etc/profile
-  echo 'export YARN_CONF_DIR=$HADOOP_HOME/etc/hadoop' >> /etc/profile
-  echo 'export PATH=$PATH:$HADOOP_HOME/bin:$HADOOP_HOME/sbin' >> /etc/profile
-  echo 'export HADOOP_COMMON_LIB_NATIVE_DIR=$HADOOP_HOME/lib/native' >> /etc/profile
-  echo "export HADOOP_OPTS='-Djava.library.path=$HADOOP_HOME/lib'" >> /etc/profile
-  echo 'export JAVA_HOME=/usr/java/java' >> /opt/$hadoop/libexec/hadoop-config.sh
-  echo 'export JAVA_HOME=/usr/java/java' >> /etc/profile
-  echo 'export HADOOP_HOME=/opt/hadoop' >> /etc/profile
-  echo 'export PATH=$PATH:$HADOOP_HOME/bin' >> /etc/profile
-  echo 'export PATH=$PATH:$HADOOP_HOME/sbin' >> /etc/profile
-  echo 'export HDFS_NAMENODE_USER=root' >> /etc/profile
-  echo 'export HDFS_DATANODE_USER=root' >> /etc/profile
-  echo 'export HDFS_JOURNALNODE_USER=root' >> /etc/profile
-  echo 'export YARN_RESOURCEMANAGER_USER=root' >> /etc/profile
-  echo 'export YARN_NODEMANAGER_USER=root' >> /etc/profile
-  echo 'export HDFS_ZKFC_USER=root' >> /etc/profile
-  echo 'export HADOOP_MAPRED_HOME=$HADOOP_HOME' >> /etc/profile
-  echo 'export HADOOP_COMMON_HOME=$HADOOP_HOME' >> /etc/profile
-  echo 'export HADOOP_HDFS_HOME=$HADOOP_HOME' >> /etc/profile
-  echo 'export YARN_HOME=$HADOOP_HOME' >> /etc/profile
-  echo 'export HADOOP_COMMON_LIB_NATIVE_DIR=$HADOOP_HOME/lib/native' >> /etc/profile 
-  echo "export HADOOP_OPTS='-Djava.library.path=$HADOOP_HOME/lib'" >> /etc/profile
-  cp $base/hadoop-3.0.3-ha/*.xml /opt/$hadoop/etc/hadoop/
+  cp $base/hadoop-3.0.3-ha/profile /etc/profile
+  cp $base/hadoop-3.0.3-ha/hadoop-config.sh /opt/$hadoop/libexec
+  cp $base/hadoop-3.0.3-ha/hadoop-env.sh /opt/$hadoop/etc/hadoop/hadoop-env.sh
+  cp $base/hadoop-3.0.3-ha/hadoop-3.0.3-ha/*.xml /opt/$hadoop/etc/hadoop/
   echo -e "master\nslaver1\nslaver2\n" /opt/hadoop-3.0.3/etc/hadoop/workers
   deploy.sh /etc/profile /etc/profile slave
   runRemoteCmd.sh "source /etc/profile" slave
   runRemoteCmd.sh "rm -r -f /opt/hadoop" slave
   runRemoteCmd.sh "rm -r -f /opt/hadoop-3.0.3" slave
+  rm -r -f /opt/hadoop/tmp
+  mkdir -p /opt/hadoop/tmp
+  mkdir -p /opt/hadoop/tmp/name
+  mkdir -p /opt/hadoop/tmp/data
+  mkdir -p /opt/hadoop/tmp/journaldata
   deploy.sh /opt/hadoop /opt/hadoop slave
   runRemoteCmd.sh "hadoop version" all
   echo `date '+%Y-%m-%d %H:%M:%S'` "hadoop has been deployed"
