@@ -153,8 +153,8 @@ if [ -d "/opt/$hadoop" ]; then
   cp $base/hadoop-3.0.3-ha/profile /etc/profile
   cp $base/hadoop-3.0.3-ha/hadoop-config.sh /opt/$hadoop/libexec
   cp $base/hadoop-3.0.3-ha/hadoop-env.sh /opt/$hadoop/etc/hadoop/hadoop-env.sh
-  cp $base/hadoop-3.0.3-ha/hadoop-3.0.3-ha/*.xml /opt/$hadoop/etc/hadoop/
-  echo -e "master\nslaver1\nslaver2\n" /opt/hadoop-3.0.3/etc/hadoop/workers
+  cp $base/hadoop-3.0.3-ha/*.xml /opt/$hadoop/etc/hadoop/
+  cp $base/hadoop-3.0.3-ha/workers /opt/hadoop-3.0.3/etc/hadoop
   deploy.sh /etc/profile /etc/profile slave
   runRemoteCmd.sh "source /etc/profile" slave
   runRemoteCmd.sh "rm -r -f /opt/hadoop" slave
@@ -171,3 +171,19 @@ else
   echo "Not complete hadoop!"
   exit
 fi
+
+#start services
+runRemoteCmd.sh "/opt/zookeeper/bin/zkServer.sh start" all 
+runRemoteCmd.sh "/opt/hadoop/sbin/hadoop-daemon.sh start journalnode" all
+runRemoteCmd.sh "jps" all
+
+#format and sync
+hdfs namenode -format
+hdfs zkfc -formatZK
+exit
+deploy.sh /opt/hadoop/tmp/name /opt/hadoop/tmp/name slave
+
+
+
+
+

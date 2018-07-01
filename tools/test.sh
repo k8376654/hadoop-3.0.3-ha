@@ -1,11 +1,12 @@
-runRemoteCmd.sh "setenforce 0" slaver1.mycluster host.conf
-runRemoteCmd.sh "sed -i '/SELINUX/s/enforcing/disabled/' /etc/selinux/config" slaver1.mycluster host.conf
-runRemoteCmd.sh "systemctl disable firewalld;systemctl stop firewalld" slaver1.mycluster host.conf
-runRemoteCmd.sh "echo 'StrictHostKeyChecking no' >> /etc/ssh/ssh_config" slaver1.mycluster host.conf
-runRemoteCmd.sh "systemctl restart sshd" slaver1.mycluster host.conf
-runRemoteCmd.sh "setenforce 0" slaver2.mycluster host.conf
-runRemoteCmd.sh "sed -i '/SELINUX/s/enforcing/disabled/' /etc/selinux/config" slaver2.mycluster host.conf
-runRemoteCmd.sh "systemctl disable firewalld;systemctl stop firewalld" slaver2.mycluster host.conf
-runRemoteCmd.sh "echo 'StrictHostKeyChecking no' >> /etc/ssh/ssh_config" slaver2.mycluster host.conf
-runRemoteCmd.sh "systemctl restart sshd" slaver2.mycluster host.conf
+#start services
+runRemoteCmd.sh "/opt/zookeeper/bin/zkServer.sh start" all
+runRemoteCmd.sh "/opt/hadoop/sbin/hadoop-daemon.sh start journalnode" all
+runRemoteCmd.sh "jps" all
+
+#format
+hdfs namenode -format
+hdfs zkfc -formatZK
+nohup hdfs namenode &
+pid=$!
+echo $pid
 
