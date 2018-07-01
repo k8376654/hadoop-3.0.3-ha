@@ -180,10 +180,10 @@ runRemoteCmd.sh "jps" all
 #format and sync
 hdfs namenode -format
 hdfs zkfc -formatZK
-exit
-deploy.sh /opt/hadoop/tmp/name /opt/hadoop/tmp/name slave
+deploy.sh /opt/hadoop/tmp/name /opt/hadoop/tmp slave
 
-
+#start hdfs and mapreduce
+start-all.sh
 
 
 
