@@ -8,16 +8,20 @@ hadoop=hadoop-3.0.3
 zookeeper=zookeeper-3.4.9
 password=1234
 
-#working directory
-cd $base
-
 #create hadoop app folder
 mkdir -p $base
 
+#working directory
+cd $base
+
+#get repo
+rm -r -f $base/hadoop-3.0.3-ha
+git clone https://github.com/orozcohsu/hadoop-3.0.3-ha.git
+
 #hosts
-cat $base/tools/host.conf|grep -v '^#'|grep ','master.mycluster','|awk -F',' '{print $3 " master"}' >> /etc/hosts
-cat $base/tools/host.conf|grep -v '^#'|grep ','slaver1.mycluster','|awk -F',' '{print $3 " slaver1"}' >> /etc/hosts
-cat $base/tools/host.conf|grep -v '^#'|grep ','slaver2.mycluster','|awk -F',' '{print $3 " slaver2"}' >> /etc/hosts
+cat $base/hadoop-3.0.3-ha/tools/host.conf|grep -v '^#'|grep ','master.mycluster','|awk -F',' '{print $3 " master"}' >> /etc/hosts
+cat $base/hadoop-3.0.3-ha/tools/host.conf|grep -v '^#'|grep ','slaver1.mycluster','|awk -F',' '{print $3 " slaver1"}' >> /etc/hosts
+cat $base/hadoop-3.0.3-ha/tools/host.conf|grep -v '^#'|grep ','slaver2.mycluster','|awk -F',' '{print $3 " slaver2"}' >> /etc/hosts
 
 #SSH without password
 yes y | ssh-keygen -t rsa -f ~/.ssh/id_rsa -P ''
@@ -32,8 +36,8 @@ deploy.sh /root/.ssh/id_rsa.pub /root/.ssh slave
 deploy.sh /root/.ssh/authorized_keys /root/.ssh slave
 
 hostname master
-runRemoteCmd.sh "hostname slaver1" slaver1.mycluster $base/tools/host.conf
-runRemoteCmd.sh "hostname slaver2" slaver2.mycluster $base/tools/host.conf
+runRemoteCmd.sh "hostname slaver1" slaver1.mycluster $base/hadoop-3.0.3-ha/tools/host.conf
+runRemoteCmd.sh "hostname slaver2" slaver2.mycluster $base/hadoop-3.0.3-ha/tools/host.conf
 
 echo `date '+%Y-%m-%d %H:%M:%S'` "Hadoop-cluster-nodes are inpass"
 
@@ -45,16 +49,16 @@ systemctl stop firewalld
 echo 'StrictHostKeyChecking no' >> /etc/ssh/ssh_config
 systemctl restart sshd 
 
-runRemoteCmd.sh "setenforce 0" slaver1.mycluster $base/tools/host.conf
-runRemoteCmd.sh "sed -i '/SELINUX/s/enforcing/disabled/' /etc/selinux/config" slaver1.mycluster $base/tools/host.conf
-runRemoteCmd.sh "systemctl disable firewalld;systemctl stop firewalld" slaver1.mycluster $base/tools/host.conf
-runRemoteCmd.sh "echo 'StrictHostKeyChecking no' >> /etc/ssh/ssh_config" slaver1.mycluster $base/tools/host.conf
-runRemoteCmd.sh "systemctl restart sshd" slaver1.mycluster $base/tools/host.conf
-runRemoteCmd.sh "setenforce 0" slaver2.mycluster $base/tools/host.conf
-runRemoteCmd.sh "sed -i '/SELINUX/s/enforcing/disabled/' /etc/selinux/config" slaver2.mycluster $base/tools/host.conf
-runRemoteCmd.sh "systemctl disable firewalld;systemctl stop firewalld" slaver2.mycluster $base/tools/host.conf
-runRemoteCmd.sh "echo 'StrictHostKeyChecking no' >> /etc/ssh/ssh_config" slaver2.mycluster $base/tools/host.conf
-runRemoteCmd.sh "systemctl restart sshd" slaver2.mycluster $base/tools/host.conf
+runRemoteCmd.sh "setenforce 0" slaver1.mycluster $base/hadoop-3.0.3-ha/tools/host.conf
+runRemoteCmd.sh "sed -i '/SELINUX/s/enforcing/disabled/' /etc/selinux/config" slaver1.mycluster $base/hadoop-3.0.3-ha/tools/host.conf
+runRemoteCmd.sh "systemctl disable firewalld;systemctl stop firewalld" slaver1.mycluster $base/hadoop-3.0.3-ha/tools/host.conf
+runRemoteCmd.sh "echo 'StrictHostKeyChecking no' >> /etc/ssh/ssh_config" slaver1.mycluster $base/hadoop-3.0.3-ha/tools/host.conf
+runRemoteCmd.sh "systemctl restart sshd" slaver1.mycluster $base/hadoop-3.0.3-ha/tools/host.conf
+runRemoteCmd.sh "setenforce 0" slaver2.mycluster $base/hadoop-3.0.3-ha/tools/host.conf
+runRemoteCmd.sh "sed -i '/SELINUX/s/enforcing/disabled/' /etc/selinux/config" slaver2.mycluster $base/hadoop-3.0.3-ha/tools/host.conf
+runRemoteCmd.sh "systemctl disable firewalld;systemctl stop firewalld" slaver2.mycluster $base/hadoop-3.0.3-ha/tools/host.conf
+runRemoteCmd.sh "echo 'StrictHostKeyChecking no' >> /etc/ssh/ssh_config" slaver2.mycluster $base/hadoop-3.0.3-ha/tools/host.conf
+runRemoteCmd.sh "systemctl restart sshd" slaver2.mycluster $base/hadoop-3.0.3-ha/tools/host.conf
 
 #install packages
 runRemoteCmd.sh "yum -y update" all 
@@ -75,17 +79,17 @@ fi
 if [ -f "$base/$hadoop.tar.gz" ]; then
   echo `date '+%Y-%m-%d %H:%M:%S'` "2.Found $hadoop"
 else
-  echo `date '+%Y-%m-%d %H:%M:%S'` "2. Not found $hadoop, start to download"
-  wget https://archive.apache.org/dist/hadoop/core/hadoop-3.0.3/$hadoop 
-  echo `date '+%Y-%m-%d %H:%M:%S'` "2. $hadoop downloaded"
+  echo `date '+%Y-%m-%d %H:%M:%S'` "2. Not found $hadoop.tar.gz, start to download"
+  wget https://archive.apache.org/dist/hadoop/core/hadoop-3.0.3/$hadoop.tar.gz 
+  echo `date '+%Y-%m-%d %H:%M:%S'` "2. $hadoop.tar.gz downloaded"
 fi
 
 if [ -f "$base/$zookeeper.tar.gz" ]; then
   echo `date '+%Y-%m-%d %H:%M:%S'` "3.Found $hadoop"
 else
-  echo `date '+%Y-%m-%d %H:%M:%S'` "3. Not found $zookeeper, start to download"
-  wget https://archive.apache.org/dist/zookeeper/zookeeper-3.4.9/zookeeper-3.4.9.tar.gz
-  echo `date '+%Y-%m-%d %H:%M:%S'` "3. $zookeeper downloaded"
+  echo `date '+%Y-%m-%d %H:%M:%S'` "3. Not found $zookeeper.tar.gz, start to download"
+  wget https://archive.apache.org/dist/zookeeper/$zookeeper/$zookeeper.tar.gz
+  echo `date '+%Y-%m-%d %H:%M:%S'` "3. $zookeeper.tar.gz downloaded"
 fi
 
 
@@ -128,13 +132,15 @@ echo 'server.3=slaver2:2888:3888' >> /opt/zookeeper/conf/zoo.cfg
 echo '1' > /opt/zookeeper/myid
 runRemoteCmd.sh "rm -r -f /opt/zookeeper 2&>1" slave
 deploy.sh /opt/zookeeper /opt/zookeeper slave
-runRemoteCmd.sh "echo '2' > /opt/zookeeper/myid" slaver1.mycluster $base/tools/host.conf
-runRemoteCmd.sh "echo '3' > /opt/zookeeper/myid" slaver2.mycluster $base/tools/host.conf
+runRemoteCmd.sh "echo '2' > /opt/zookeeper/myid" slaver1.mycluster $base/hadoop-3.0.3-ha/tools/host.conf
+runRemoteCmd.sh "echo '3' > /opt/zookeeper/myid" slaver2.mycluster $base/hadoop-3.0.3-ha/tools/host.conf
 
 #hadoop3
 tar zxvf $hadoop.tar.gz
-mv -f $hadoop /opt 2&>1
-ln -s /opt/$hadoop /opt/hadoop 2&>1
+rm -r -f /opt/$hadoop
+rm -r -f /opt/hadoop
+mv $hadoop /opt
+ln -s /opt/$hadoop /opt/hadoop
 echo 'export HADOOP_HOME=/opt/hadoop' >> /etc/profile
 echo 'export HADOOP_MAPRED_HOME=$HADOOP_HOME' >> /etc/profile
 echo 'export HADOOP_COMMON_HOME=$HADOOP_HOME' >> /etc/profile
@@ -144,7 +150,7 @@ echo 'export HADOOP_CONF_DIR=$HADOOP_HOME/etc/hadoop' >> /etc/profile
 echo 'export YARN_CONF_DIR=$HADOOP_HOME/etc/hadoop' >> /etc/profile
 echo 'export PATH=$PATH:$HADOOP_HOME/bin:$HADOOP_HOME/sbin' >> /etc/profile
 echo 'export HADOOP_COMMON_LIB_NATIVE_DIR=$HADOOP_HOME/lib/native' >> /etc/profile
-ehco "export HADOOP_OPTS="-Djava.library.path=$HADOOP_HOME/lib'" >> /etc/profile
+echo "export HADOOP_OPTS='-Djava.library.path=$HADOOP_HOME/lib'" >> /etc/profile
 
 echo 'export JAVA_HOME=/usr/java/java' >> /opt/$hadoop/libexec/hadoop-config.sh
 
@@ -165,11 +171,12 @@ echo 'export YARN_HOME=$HADOOP_HOME' >> /etc/profile
 echo 'export HADOOP_COMMON_LIB_NATIVE_DIR=$HADOOP_HOME/lib/native' >> /etc/profile 
 echo "export HADOOP_OPTS='-Djava.library.path=$HADOOP_HOME/lib'" >> /etc/profile
 
+cp $base/hadoop-3.0.3-ha/*.xml /opt/$hadoop/etc/hadoop/
 
+echo -e "master\nslaver1\nslaver2\n" /opt/hadoop-3.0.3/etc/hadoop/workers
+runRemoteCmd.sh "rm -r -f /opt/hadoop" slaver1.mycluster host.conf
+runRemoteCmd.sh "rm -r -f /opt/hadoop" slaver2.mycluster host.conf
+deploy /opt/hadoop /opt/hadoop slave
 
-
-
-
-
-
-
+runRemoteCmd.sh "hadoop version" all
+echo `date '+%Y-%m-%d %H:%M:%S'` "hadoop has been deployed"
