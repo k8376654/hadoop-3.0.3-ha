@@ -156,6 +156,8 @@ if [ -d "/opt/$hadoop" ]; then
   cp /tmp/hadoop-3.0.3-ha/*.xml /opt/$hadoop/etc/hadoop/
   cp /tmp/hadoop-3.0.3-ha/workers /opt/hadoop-3.0.3/etc/hadoop
   deploy.sh /etc/profile /etc/profile slave
+  source ~/.bash_profile  
+  runRemoteCmd.sh "source ~/.bash_profile" slave
   runRemoteCmd.sh "source /etc/profile" slave
   runRemoteCmd.sh "rm -r -f /opt/hadoop" slave
   runRemoteCmd.sh "rm -r -f /opt/hadoop-3.0.3" slave

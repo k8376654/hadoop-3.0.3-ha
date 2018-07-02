@@ -13,7 +13,7 @@ tag=$2
 if [ 'a'$3'a' == 'aa' ]
 then
   
-  confFile=/root/tools/deploy.conf
+  confFile=/tmp/hadoop-3.0.3-ha/tools/deploy.conf
 else 
   confFile=$3
 fi
