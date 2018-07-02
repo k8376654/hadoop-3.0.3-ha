@@ -184,6 +184,3 @@ deploy.sh /opt/hadoop/tmp/name /opt/hadoop/tmp slave
 
 #start hdfs and mapreduce
 start-all.sh
-
-
-
