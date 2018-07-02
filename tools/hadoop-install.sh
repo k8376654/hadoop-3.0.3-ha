@@ -19,9 +19,9 @@ rm -r -f $base/hadoop-3.0.3-ha
 git clone https://github.com/orozcohsu/hadoop-3.0.3-ha.git
 
 #hosts
-cat $base/hadoop-3.0.3-ha/tools/host.conf|grep -v '^#'|grep ','master.mycluster','|awk -F',' '{print $3 " master"}' >> /etc/hosts
-cat $base/hadoop-3.0.3-ha/tools/host.conf|grep -v '^#'|grep ','slaver1.mycluster','|awk -F',' '{print $3 " slaver1"}' >> /etc/hosts
-cat $base/hadoop-3.0.3-ha/tools/host.conf|grep -v '^#'|grep ','slaver2.mycluster','|awk -F',' '{print $3 " slaver2"}' >> /etc/hosts
+cat /tmp/hadoop-3.0.3-ha/tools/host.conf|grep -v '^#'|grep ','master.mycluster','|awk -F',' '{print $3 " master"}' >> /etc/hosts
+cat /tmp/hadoop-3.0.3-ha/tools/host.conf|grep -v '^#'|grep ','slaver1.mycluster','|awk -F',' '{print $3 " slaver1"}' >> /etc/hosts
+cat /tmp/hadoop-3.0.3-ha/tools/host.conf|grep -v '^#'|grep ','slaver2.mycluster','|awk -F',' '{print $3 " slaver2"}' >> /etc/hosts
 
 #SSH without password
 yes y | ssh-keygen -t rsa -f ~/.ssh/id_rsa -P ''
@@ -36,8 +36,8 @@ deploy.sh /root/.ssh/id_rsa.pub /root/.ssh slave
 deploy.sh /root/.ssh/authorized_keys /root/.ssh slave
 
 hostname master
-runRemoteCmd.sh "hostname slaver1" slaver1.mycluster $base/hadoop-3.0.3-ha/tools/host.conf
-runRemoteCmd.sh "hostname slaver2" slaver2.mycluster $base/hadoop-3.0.3-ha/tools/host.conf
+runRemoteCmd.sh "hostname slaver1" slaver1.mycluster /tmp/hadoop-3.0.3-ha/tools/host.conf
+runRemoteCmd.sh "hostname slaver2" slaver2.mycluster /tmp/hadoop-3.0.3-ha/tools/host.conf
 
 echo `date '+%Y-%m-%d %H:%M:%S'` "Hadoop-cluster-nodes are inpass"
 
@@ -49,16 +49,16 @@ systemctl stop firewalld
 echo 'StrictHostKeyChecking no' >> /etc/ssh/ssh_config
 systemctl restart sshd 
 
-runRemoteCmd.sh "setenforce 0" slaver1.mycluster $base/hadoop-3.0.3-ha/tools/host.conf
-runRemoteCmd.sh "sed -i '/SELINUX/s/enforcing/disabled/' /etc/selinux/config" slaver1.mycluster $base/hadoop-3.0.3-ha/tools/host.conf
-runRemoteCmd.sh "systemctl disable firewalld;systemctl stop firewalld" slaver1.mycluster $base/hadoop-3.0.3-ha/tools/host.conf
-runRemoteCmd.sh "echo 'StrictHostKeyChecking no' >> /etc/ssh/ssh_config" slaver1.mycluster $base/hadoop-3.0.3-ha/tools/host.conf
-runRemoteCmd.sh "systemctl restart sshd" slaver1.mycluster $base/hadoop-3.0.3-ha/tools/host.conf
-runRemoteCmd.sh "setenforce 0" slaver2.mycluster $base/hadoop-3.0.3-ha/tools/host.conf
+runRemoteCmd.sh "setenforce 0" slaver1.mycluster /tmp/hadoop-3.0.3-ha/tools/host.conf
+runRemoteCmd.sh "sed -i '/SELINUX/s/enforcing/disabled/' /etc/selinux/config" slaver1.mycluster /tmp/hadoop-3.0.3-ha/tools/host.conf
+runRemoteCmd.sh "systemctl disable firewalld;systemctl stop firewalld" slaver1.mycluster /tmp/hadoop-3.0.3-ha/tools/host.conf
+runRemoteCmd.sh "echo 'StrictHostKeyChecking no' >> /etc/ssh/ssh_config" slaver1.mycluster /tmp/hadoop-3.0.3-ha/tools/host.conf
+runRemoteCmd.sh "systemctl restart sshd" slaver1.mycluster /tmp/hadoop-3.0.3-ha/tools/host.conf
+runRemoteCmd.sh "setenforce 0" slaver2.mycluster /tmp/hadoop-3.0.3-ha/tools/host.conf
 runRemoteCmd.sh "sed -i '/SELINUX/s/enforcing/disabled/' /etc/selinux/config" slaver2.mycluster $base/hadoop-3.0.3-ha/tools/host.conf
-runRemoteCmd.sh "systemctl disable firewalld;systemctl stop firewalld" slaver2.mycluster $base/hadoop-3.0.3-ha/tools/host.conf
-runRemoteCmd.sh "echo 'StrictHostKeyChecking no' >> /etc/ssh/ssh_config" slaver2.mycluster $base/hadoop-3.0.3-ha/tools/host.conf
-runRemoteCmd.sh "systemctl restart sshd" slaver2.mycluster $base/hadoop-3.0.3-ha/tools/host.conf
+runRemoteCmd.sh "systemctl disable firewalld;systemctl stop firewalld" slaver2.mycluster /tmp/hadoop-3.0.3-ha/tools/host.conf
+runRemoteCmd.sh "echo 'StrictHostKeyChecking no' >> /etc/ssh/ssh_config" slaver2.mycluster /tmp/hadoop-3.0.3-ha/tools/host.conf
+runRemoteCmd.sh "systemctl restart sshd" slaver2.mycluster /tmp/hadoop-3.0.3-ha/tools/host.conf
 
 #install packages
 runRemoteCmd.sh "yum -y update" all 
@@ -136,8 +136,8 @@ if [ -d "/opt/$zookeeper" ]; then
   echo '1' > /opt/zookeeper/myid
   runRemoteCmd.sh "rm -r -f /opt/zookeeper 2&>1" slave
   deploy.sh /opt/$zookeeper /opt/zookeeper slave
-  runRemoteCmd.sh "echo '2' > /opt/zookeeper/myid" slaver1.mycluster $base/hadoop-3.0.3-ha/tools/host.conf
-  runRemoteCmd.sh "echo '3' > /opt/zookeeper/myid" slaver2.mycluster $base/hadoop-3.0.3-ha/tools/host.conf
+  runRemoteCmd.sh "echo '2' > /opt/zookeeper/myid" slaver1.mycluster /tmp/hadoop-3.0.3-ha/tools/host.conf
+  runRemoteCmd.sh "echo '3' > /opt/zookeeper/myid" slaver2.mycluster /tmp/hadoop-3.0.3-ha/tools/host.conf
 else
   echo "Not complete zookeeper!"
   exit
