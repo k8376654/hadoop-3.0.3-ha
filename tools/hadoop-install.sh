@@ -110,8 +110,8 @@ echo 'export JAVA_HOME=/usr/java/java' >> /etc/profile
 echo 'export JRE_HOME=$JAVA_HOME/jre' >> /etc/profile
 echo 'export CLASSPATH=.:$JAVA_HOME/lib/dt.jar:$JAVA_HOME/lib/tools.jar:$JRE_HOME/lib/rt.jar' >> /etc/profile
 echo 'export PATH=$PATH:$JAVA_HOME/bin' >> /etc/profile
-
-runRemoteCmd.sh "rpm -ivh jdk-8u144-linux-x64.rpm 2&>1" slave
+deploy.sh $bash/$jdk /tmp slave
+runRemoteCmd.sh "rpm -ivh /tmp/jdk-8u144-linux-x64.rpm 2&>1" slave
 runRemoteCmd.sh "ln -s /usr/java/jdk1.8.0_144/ /usr/java/java 2&>1" slave
 runRemoteCmd.sh "export JAVA_HOME=/usr/java/java" slave
 runRemoteCmd.sh "export JRE_HOME=$JAVA_HOME/jre" slave
