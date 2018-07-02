@@ -55,7 +55,7 @@ runRemoteCmd.sh "systemctl disable firewalld;systemctl stop firewalld" slaver1.m
 runRemoteCmd.sh "echo 'StrictHostKeyChecking no' >> /etc/ssh/ssh_config" slaver1.mycluster /tmp/hadoop-3.0.3-ha/tools/host.conf
 runRemoteCmd.sh "systemctl restart sshd" slaver1.mycluster /tmp/hadoop-3.0.3-ha/tools/host.conf
 runRemoteCmd.sh "setenforce 0" slaver2.mycluster /tmp/hadoop-3.0.3-ha/tools/host.conf
-runRemoteCmd.sh "sed -i '/SELINUX/s/enforcing/disabled/' /etc/selinux/config" slaver2.mycluster $base/hadoop-3.0.3-ha/tools/host.conf
+runRemoteCmd.sh "sed -i '/SELINUX/s/enforcing/disabled/' /etc/selinux/config" slaver2.mycluster /tmp/hadoop-3.0.3-ha/tools/host.conf
 runRemoteCmd.sh "systemctl disable firewalld;systemctl stop firewalld" slaver2.mycluster /tmp/hadoop-3.0.3-ha/tools/host.conf
 runRemoteCmd.sh "echo 'StrictHostKeyChecking no' >> /etc/ssh/ssh_config" slaver2.mycluster /tmp/hadoop-3.0.3-ha/tools/host.conf
 runRemoteCmd.sh "systemctl restart sshd" slaver2.mycluster /tmp/hadoop-3.0.3-ha/tools/host.conf
@@ -150,11 +150,11 @@ rm -r -f /opt/hadoop
 mv $hadoop /opt
 if [ -d "/opt/$hadoop" ]; then
   ln -s /opt/$hadoop /opt/hadoop
-  cp $base/hadoop-3.0.3-ha/profile /etc/profile
-  cp $base/hadoop-3.0.3-ha/hadoop-config.sh /opt/$hadoop/libexec
-  cp $base/hadoop-3.0.3-ha/hadoop-env.sh /opt/$hadoop/etc/hadoop/hadoop-env.sh
-  cp $base/hadoop-3.0.3-ha/*.xml /opt/$hadoop/etc/hadoop/
-  cp $base/hadoop-3.0.3-ha/workers /opt/hadoop-3.0.3/etc/hadoop
+  cp /tmp/hadoop-3.0.3-ha/profile /etc/profile
+  cp /tmp/hadoop-3.0.3-ha/hadoop-config.sh /opt/$hadoop/libexec
+  cp /tmp/hadoop-3.0.3-ha/hadoop-env.sh /opt/$hadoop/etc/hadoop/hadoop-env.sh
+  cp /tmp/hadoop-3.0.3-ha/*.xml /opt/$hadoop/etc/hadoop/
+  cp /tmp/hadoop-3.0.3-ha/workers /opt/hadoop-3.0.3/etc/hadoop
   deploy.sh /etc/profile /etc/profile slave
   runRemoteCmd.sh "source /etc/profile" slave
   runRemoteCmd.sh "rm -r -f /opt/hadoop" slave
