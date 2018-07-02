@@ -104,15 +104,17 @@ echo `date '+%Y-%m-%d %H:%M:%S'` "Hadoop-record-folders are created"
 
 #install package
 #java
-rpm -ivh jdk-8u144-linux-x64.rpm 2&>1
-ln -s /usr/java/jdk1.8.0_144/ /usr/java/java 2&>1
+rpm -ivh $base/$jdk
+rm -r -f /usr/java/java
+ln -s /usr/java/jdk1.8.0_144/ /usr/java/java
 echo 'export JAVA_HOME=/usr/java/java' >> /etc/profile
 echo 'export JRE_HOME=$JAVA_HOME/jre' >> /etc/profile
 echo 'export CLASSPATH=.:$JAVA_HOME/lib/dt.jar:$JAVA_HOME/lib/tools.jar:$JRE_HOME/lib/rt.jar' >> /etc/profile
 echo 'export PATH=$PATH:$JAVA_HOME/bin' >> /etc/profile
-deploy.sh $bash/$jdk /tmp slave
-runRemoteCmd.sh "rpm -ivh /tmp/jdk-8u144-linux-x64.rpm 2&>1" slave
-runRemoteCmd.sh "ln -s /usr/java/jdk1.8.0_144/ /usr/java/java 2&>1" slave
+deploy.sh $base/$jdk /tmp slave
+runRemoteCmd.sh "rpm -ivh /tmp/jdk-8u144-linux-x64.rpm" slave
+runRemoteCmd.sh "rm -r -f /usr/java/java" slave
+runRemoteCmd.sh "ln -s /usr/java/jdk1.8.0_144/ /usr/java/java" slave
 runRemoteCmd.sh "export JAVA_HOME=/usr/java/java" slave
 runRemoteCmd.sh "export JRE_HOME=$JAVA_HOME/jre" slave
 runRemoteCmd.sh "export CLASSPATH=.:$JAVA_HOME/lib/dt.jar:$JAVA_HOME/lib/tools.jar:$JRE_HOME/lib/rt.jar" slave
