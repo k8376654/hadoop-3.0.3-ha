@@ -182,6 +182,7 @@ runRemoteCmd.sh "/opt/hadoop/sbin/hadoop-daemon.sh start journalnode" all
 runRemoteCmd.sh "jps" all
 
 #format and sync
+source /etc/profile
 hdfs namenode -format
 hdfs zkfc -formatZK
 deploy.sh /opt/hadoop/tmp/name /opt/hadoop/tmp slave
