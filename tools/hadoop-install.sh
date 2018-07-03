@@ -192,3 +192,17 @@ deploy.sh /opt/hadoop/tmp/name /opt/hadoop/tmp slave
 
 #start hdfs and mapreduce
 start-all.sh
+echo `date '+%Y-%m-%d %H:%M:%S'` "Hadoop services are up!"
+
+#start historyserver
+mr-jobhistory-daemon.sh start historyserver
+
+#start timelineserver
+yarn-daemon.sh start timelineserver
+
+#test hadoop
+hadoop jar /opt/hadoop/share/hadoop/mapreduce/hadoop-mapreduce-examples-3.0.3.jar teragen 1000 /teragen
+hadoop jar /opt/hadoop/share/hadoop/mapreduce/hadoop-mapreduce-examples-3.0.3.jar terasort /teragen /terasort
+hadoop jar /opt/hadoop/share/hadoop/mapreduce/hadoop-mapreduce-examples-3.0.3.jar teravalidate /terasort /teravalidate
+
+echo `date '+%Y-%m-%d %H:%M:%S'` "Hadoop-3.0.3 HA are done!"
