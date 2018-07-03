@@ -12,3 +12,8 @@
 ## 1.in master, clean all hosts in /etc/hosts
 ## 2.make sure all nodes don't have zookeeper thread running, if yes, kill it
 ## 3.run the shell => ./hadoop_install.sh
+
+# How to change the cluster nodes
+
+## the mininum is 3 nodes
+## change the hosts.conf, deploy.conf, workers, zookeeper... 
