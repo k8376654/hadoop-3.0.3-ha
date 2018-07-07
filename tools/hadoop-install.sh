@@ -18,17 +18,18 @@ cd $base
 rm -r -f $base/hadoop-3.0.3-ha
 git clone https://github.com/orozcohsu/hadoop-3.0.3-ha.git
 
+#hosts
+cat /tmp/hadoop-3.0.3-ha/tools/host.conf|grep -v '^#'|grep ','master.mycluster','|awk -F',' '{print $3 " master"}' >> /etc/hosts
+cat /tmp/hadoop-3.0.3-ha/tools/host.conf|grep -v '^#'|grep ','slaver1.mycluster','|awk -F',' '{print $3 " slaver1"}' >> /etc/hosts
+cat /tmp/hadoop-3.0.3-ha/tools/host.conf|grep -v '^#'|grep ','slaver2.mycluster','|awk -F',' '{print $3 " slaver2"}' >> /etc/hosts
+echo 'master' > /etc/hostname
+
 #SSH without password
 yes y | ssh-keygen -t rsa -f ~/.ssh/id_rsa -P ''
 cat ~/.ssh/id_rsa.pub >> ~/.ssh/authorized_keys
 sshpass -p $password ssh-copy-id -i ~/.ssh/id_rsa.pub root@slaver1
 sshpass -p $password ssh-copy-id -i ~/.ssh/id_rsa.pub root@slaver2
 
-#hosts
-cat /tmp/hadoop-3.0.3-ha/tools/host.conf|grep -v '^#'|grep ','master.mycluster','|awk -F',' '{print $3 " master"}' >> /etc/hosts
-cat /tmp/hadoop-3.0.3-ha/tools/host.conf|grep -v '^#'|grep ','slaver1.mycluster','|awk -F',' '{print $3 " slaver1"}' >> /etc/hosts
-cat /tmp/hadoop-3.0.3-ha/tools/host.conf|grep -v '^#'|grep ','slaver2.mycluster','|awk -F',' '{print $3 " slaver2"}' >> /etc/hosts
-echo 'master' > /etc/hostname
 runRemoteCmd.sh "echo 'slaver1 > /etc/hostname'" slaver1.mycluster /tmp/hadoop-3.0.3-ha/tools/host.conf
 runRemoteCmd.sh "echo 'slaver2 > /etc/hostname'" slaver2.mycluster /tmp/hadoop-3.0.3-ha/tools/host.conf
 
